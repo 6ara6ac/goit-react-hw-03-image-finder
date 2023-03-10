@@ -1,9 +1,17 @@
+import { ItemGallery } from "./ItemGallery"
+
 export const ImageGallery = ({ images }) => {
-    return <><ul className="ImageGallery">
-        {images.map(( {id, webformatURL }) =>{
-            return <li className='ImageGalleryItem' key ={id}>
-            <img className="ImageGalleryItem-image" src={webformatURL}></img>
-            </li>} )}
+
+    return <>
+        <ul className="ImageGallery">
+        {images.map(( {id, webformatURL, largeImageURL, tags }) =>{
+            return <ItemGallery className='ImageGalleryItem' 
+            key ={id}
+            id={id}
+            webformatURL={webformatURL}
+            largeImageURL={largeImageURL}
+            tags={tags}>
+            </ItemGallery>} )}
   </ul>
   </>
 }

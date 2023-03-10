@@ -3,6 +3,10 @@ import { Searchbar } from "./Searchbar";
 import { ImageGallery } from "./ImageGallery";
 import { fetchImages } from "./API";
 import { Spinner } from "./spinner";
+import { Container } from "./Container.styled";
+
+
+
 
 
 
@@ -10,18 +14,72 @@ export class App extends React.Component {
   state = {
     images: [],
     page: 1,
-    loading: false,
     status: 'idle',
-    searchQuery:''
+    error: null,
   }
 
+
+  
 
   async componentDidUpdate (prevProps, prevState) {
     const {page, searchQuery} = this.state
+    const images = await fetchImages (searchQuery, page)
+    const prevQuaery = prevState.searchQuery;
+    const previousPage = prevState.page;
 
-    if (prevState) {
+
+
+    try{
+    if (prevQuaery !== searchQuery || previousPage !== page) {
+        this.setState({ status: 'pending' });
+      }
+
+    if (prevQuaery !== searchQuery) {
+
+    if(!images.totalHits) {
+      throw new Error('We have nothing for this query');
     }
-  }
+    
+    this.setState({ 
+      images: [...images.hits.map(({ id, webformatURL, largeImageURL, tags }) => {
+        return { id, webformatURL, largeImageURL, tags };
+      }),
+    ],
+    status: 'resolved'})
+    }
+
+    if (previousPage !== page && page !== 1) {
+
+      this.setState({ 
+        images: [
+          ...prevState.images,
+          ...images.hits.map(({ id, webformatURL, largeImageURL, tags }) => {
+          return { id, webformatURL, largeImageURL, tags };
+        }),
+      ],
+      status: 'resolved'})
+
+      // const { height: cardHeight } = document
+      // .querySelector(".ItemGallery")
+      // .firstElementChild.getBoundingClientRect();
+  
+      // window.scrollBy({
+      // top: cardHeight * 4,
+      // behavior: "smooth",
+      // });
+
+      if (images.totalHits === this.state.images.length || images.hits.length < 12) {
+        throw new Error('You loaded all images');
+      }
+      return;
+      }
+    }
+    catch (error){
+      console.log(error)
+      this.setState ({status: 'rejected', error: error.message})
+    }
+    }
+  
 
   onLoadMore = () => {
     this.setState (prevState => ({page: prevState.page+1}))
@@ -29,47 +87,31 @@ export class App extends React.Component {
 
 
   onHandleSubmit = async searchQuery => {
+    
     this.setState(prevState => {
-      if (prevState.searchQuery === searchQuery) {
+      if(prevState.searchQuery === searchQuery){
         return;
       }
-      return { images: [], page: 1, searchQuery };
-    });  
-    
-  // const { page } = this.state
 
-  // this.setState({loading:true, images:[]}) 
-
-  //  const images = await fetchImages (searchQuery, page)
-
-  //   this.setState({ 
-  //     images: [...images.hits.map(({ id, webformatURL, largeImageURL, tags }) => {
-  //       return { id, webformatURL, largeImageURL, tags };
-  //     }),
-  //   ]})
+      return {page: 1, images: [], searchQuery
+      }
+    }) 
   }
 
-  //  fetchImages = filter => {
-  //   this.setState({loading: true})
-  //   axios.get (`https://pixabay.com/api/?q=${ filter }}&page=${this.state.page}&key=32951992-3201e8549a7160da4f5158a88&image_type=photo&orientation=horizontal&per_page=12`)
-  //   .return (images => this.setState({ 
-  //     images: [...images.hits.map(({ id, webformatURL, largeImageURL, tags }) => {
-  //       return { id, webformatURL, largeImageURL, tags };
-  //     }),
-  //   ]}))
-  //   .finally(()=> this.setState({loading:false})) 
-  // }
 
   render(){
-    const {loading, images, status} = this.state
+    const {images, status, error} = this.state
     
 
-    return <>
+    return <div>
     <Searchbar fetch={this.onHandleSubmit}/>
-    {/* {loading && <Spinner/>} */}
     <ImageGallery images={images}/>
-    <button type="button" onClick={this.onLoadMore}>Загрузить еще</button>
-    </>
+    <Container>
+    {status === 'pending' && <Spinner />}
+    {status === 'rejected' && <p>{error}</p>}
+    {status === 'resolved' && <button className="Button" onClick={this.onLoadMore} type="button">Load more</button>}
+    </Container>
+    </div>
   }
 };
 
