@@ -1,8 +1,15 @@
 import React from "react";
-import { Modal } from "./Modal";
+import { Modal } from "../Modal/Modal";
+import PropTypes from 'prop-types';
 
 
 export class ItemGallery extends React.Component  {
+     static propTypes= {
+        webformatURL: PropTypes.string.isRequired,
+        largeImageURL: PropTypes.string.isRequired,
+        tags: PropTypes.string
+    }
+
 
     state = {
         largeImageURL:'',
@@ -27,6 +34,5 @@ export class ItemGallery extends React.Component  {
         <img className="ImageGalleryItem-image" alt={tags} src={webformatURL} onClick={this.handleClick}/>
         {showModal && <Modal largeImageURL={largeImageURL} tags={tags} onClose={this.toggleModal}/>}
         </>
-
     }
 }

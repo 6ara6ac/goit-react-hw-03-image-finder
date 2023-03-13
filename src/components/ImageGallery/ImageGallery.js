@@ -1,4 +1,5 @@
-import { ItemGallery } from "./ItemGallery"
+import { ItemGallery } from "../ItemGallery/ItemGallery"
+import PropTypes from 'prop-types';
 
 export const ImageGallery = ({ images }) => {
 
@@ -14,4 +15,15 @@ export const ImageGallery = ({ images }) => {
             </ItemGallery>} )}
   </ul>
   </>
+}
+
+ImageGallery.propTypes = {
+    images: PropTypes.arrayOf(
+        PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            webformatURL: PropTypes.string.isRequired,
+            largeImageURL: PropTypes.string.isRequired,
+            tags: PropTypes.string
+        })
+    )
 }

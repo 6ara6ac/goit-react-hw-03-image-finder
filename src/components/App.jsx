@@ -1,9 +1,9 @@
 import React from "react";
-import { Searchbar } from "./Searchbar";
-import { ImageGallery } from "./ImageGallery";
-import { fetchImages } from "./API";
-import { Spinner } from "./spinner";
-import { Container } from "./Container.styled";
+import { Searchbar } from "./Searchbar/Searchbar";
+import { ImageGallery } from "./ImageGallery/ImageGallery";
+import { fetchImages } from "../service/API";
+import { Spinner } from "./Other/spinner";
+import { Container } from "./Other/Container.styled";
 
 
 
@@ -22,7 +22,7 @@ export class App extends React.Component {
   
 
   async componentDidUpdate (prevProps, prevState) {
-    const {page, searchQuery} = this.state
+    const { page, searchQuery } = this.state
     const images = await fetchImages (searchQuery, page)
     const prevQuaery = prevState.searchQuery;
     const previousPage = prevState.page;
@@ -30,10 +30,6 @@ export class App extends React.Component {
 
 
     try{
-    if (prevQuaery !== searchQuery || previousPage !== page) {
-        this.setState({ status: 'pending' });
-      }
-
     if (prevQuaery !== searchQuery) {
 
     if(!images.totalHits) {
@@ -82,7 +78,7 @@ export class App extends React.Component {
   
 
   onLoadMore = () => {
-    this.setState (prevState => ({page: prevState.page+1}))
+    this.setState (prevState => ({page: prevState.page+1, status: 'pending'}))
   }
 
 
@@ -93,7 +89,7 @@ export class App extends React.Component {
         return;
       }
 
-      return {page: 1, images: [], searchQuery
+      return {page: 1, images: [], searchQuery, status: 'pending'
       }
     }) 
   }
@@ -107,7 +103,7 @@ export class App extends React.Component {
     <Searchbar fetch={this.onHandleSubmit}/>
     <ImageGallery images={images}/>
     <Container>
-    {status === 'pending' && <Spinner />}
+    {status === 'pending' && <Spinner/>}
     {status === 'rejected' && <p>{error}</p>}
     {status === 'resolved' && <button className="Button" onClick={this.onLoadMore} type="button">Load more</button>}
     </Container>
