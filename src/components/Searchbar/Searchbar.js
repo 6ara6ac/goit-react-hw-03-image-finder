@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 export class Searchbar extends React.Component {
     static propTypes = {
-      onClick: PropTypes.func.isRequired,
+      fetch: PropTypes.func.isRequired,
     }
 
     state = {
